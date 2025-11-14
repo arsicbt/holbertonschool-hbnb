@@ -1,16 +1,22 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_restx import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
+import os
+from flask_cors import CORS
+
 
 # Initialisation
 jwt = JWTManager()
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
-def create_app():
-    app = Flask(__name__)
+
+def create_app(template_folder=None, static_folder=None):
+
+    app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
+
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hbnb.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'super-secret-key'
@@ -21,9 +27,10 @@ def create_app():
     db.init_app(app)
     bcrypt.init_app(app)
 
-    # Création de l'API principale
-    api = Api(app, version='1.0', title='HBnB API',
-              description='HBnB Application API', doc='/api/v1/')
+    # Dans votre __init__.py
+    api = Api(app, prefix="/api/v1", version='1.0', title='HBnB API',
+        description='HBnB Application API', 
+        doc='/api/v1/doc')  # Doc accessible sur http://localhost:5000/api/v1/doc
 
     # Import des namespaces RESTX
     from app.API.v1.users import api as users_ns
@@ -41,6 +48,30 @@ def create_app():
     api.add_namespace(reviews_ns, path='/api/v1/reviews')
     api.add_namespace(auth_ns, path='/api/v1/auth')
     api.add_namespace(admin_ns, path='/api/v1/admin')
-    api.add_namespace(debug_ns, path='/api/v1/debug')  # ✅ Ajouté ici
+    api.add_namespace(debug_ns, path='/api/v1/debug') 
+
+    print("✅ API chargée")
+    
+    # --- CORS : APRÈS l'API pour éviter les conflits ---
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": ["http://localhost:5000", "http://127.0.0.1:5000", "http://127.0.0.1:5500"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
+    print("✅ CORS activé")
+
+    # --- Charger les routes front ---
+    from app.routes_front import init_routes
+    init_routes(app)
+    print("✅ Routes front chargées")
+
+    # Afficher toutes les routes pour debug
+    print("\n🔍 Routes enregistrées :")
+    for rule in app.url_map.iter_rules():
+        methods = ','.join(rule.methods - {'HEAD', 'OPTIONS'})
+        print(f"  {methods:20s} {rule.rule:40s} → {rule.endpoint}")
 
     return app
