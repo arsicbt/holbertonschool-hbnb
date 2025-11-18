@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<body>
+    <main>
+        <section id="place-details">
+            <div class="place-header">
+                <h1 id="place-title">Loading...</h1>
+                <p class="price-tag" id="place-price"></p>
+            </div>
+
+            <div class="place-content">
+                <div class="place-main-info">
+                    <h2>Description</h2>
+                    <p id="place-description"></p>
+                    
+                    <div class="place-meta">
+                        <div class="meta-item">
+                            <strong>Host:</strong>
+                            <span id="place-host">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <strong>Location:</strong>
+                            <span id="place-location">-</span>
+                    </div>
+                </div>
+
+                <div class="place-sidebar">
+                    <div class="amenities-section">
+                        <h3>What this accommodation offers</h3>
+                        <ul id="place-amenities">
+                            <li>Loading...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reviews-section">
+                <h2>Traveler reviews</h2>
+                <div id="reviews-list">
+                    <p>Loading reviews...</p>
+                </div>
+            </div>
+            <button id="add-review-btn" class="primary-btn">Add your own review</button>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+{% endblock %}
+</html>

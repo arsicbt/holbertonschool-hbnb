@@ -1,0 +1,45 @@
+/* Variable et reset */
+
+:root {
+    --primary-color: #f5913f;
+    --primary-hover: #f8ac6e;
+    --secondary-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --text-color: #000000;
+    --text-light: #00000055;
+    --bg-light: #f5f6fa;
+    --white: #ffffff;
+    --shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --shadow-medium: 0 4px 15px rgba(0,0,0,0.05);
+    --radius: 8px;
+    --radius-medium: 10px;
+    --spacing: 1rem;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'BlinkMacSystemFont', 'Roboto', 'Helvetica Neue', sans-serif;
+    background-image: url("../images/home.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: var(--text-light);
+}
+
+h1 {
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+h2, h3, h4, h5, h6 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}

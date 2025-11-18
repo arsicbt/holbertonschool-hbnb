@@ -1,0 +1,94 @@
+/* Page d'acceuil */
+
+.index-page main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.index-page h1 {
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+}
+
+/* Filtre */
+#filter {
+    margin-bottom: 1.5rem;
+    background: var(--white);
+    padding: 1rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#filter label {
+    margin-right: 0.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+#price-filter {
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    border: 1px solid #ddd;
+    font-family: inherit;
+}
+
+/* Liste des places */
+#places-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.place-card {
+    background-color: var(--white);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+.place-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.place-card h3 {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.place-card p {
+    color: var(--text-light);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.place-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+}
+
+.place-info .price {
+    color: var(--danger-color);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.place-info .rating {
+    color: #f39c12;
+}
+
+.place-card button {
+    width: 100%;
+    margin-top: 1rem;
+}

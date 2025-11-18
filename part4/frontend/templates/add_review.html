@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <form id="review-form" method="post">
+        <h2>Add review</h2>
+
+        {% if place %}
+            <p>You review the: <strong>{{ place.name }}</strong></p>
+        {% endif %}
+
+        <label for="review">Your review :</label>
+        <textarea id="review" name="review" required></textarea>
+
+        <label for="rating">Note :</label>
+        <select id="rating" name="rating" required>
+            <option value="">-- Select a rating --</option>
+            <option value="1">1 ★</option>
+            <option value="2">2 ★★</option>
+            <option value="3">3 ★★★</option>
+            <option value="4">4 ★★★★</option>
+            <option value="5">5 ★★★★★</option>
+        </select>
+
+        <button type="submit">Send review</button>
+    </form>
+</main>
+
+<script src="{% static 'scripts.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <!-- Filter section -->
+    <section id="filter">
+        <label for="price-filter">Max Price:</label>
+        <select id="price-filter">
+            <!-- Options will be populated dynamically -->
+        </select>
+    </section>
+
+    <!-- Places list section -->
+    <section id="places-list">
+        <!-- List of places will be populated dynamically -->
+    </section>
+</main>
+
+<!-- JS for dynamic behavior -->
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+
+{% endblock %}
