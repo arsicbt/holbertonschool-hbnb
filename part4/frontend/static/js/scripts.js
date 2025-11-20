@@ -51,7 +51,25 @@ async function handleResponse(response) {
     return response.json();
 }
 
+
 // === API Calls ===
+
+// --- USERS ---
+async function fetchUser(userId) {
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/api/v1/users/${userId}`);
+
+        if (!response.ok) {
+            return null;
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error("User fetch error:", error);
+        return null;
+    }
+}
 
 // --- PLACES ---
 async function getAllPlaces() {
@@ -94,8 +112,9 @@ async function login(email, password) {
         if (data.access_token) {
             saveToken(data.access_token);
         }
-        
+
         return data;
+
     } catch (error) {
         console.error('Erreur login:', error);
         throw error;
@@ -123,7 +142,7 @@ async function getReviewsByPlace(placeId) {
 
 async function createReview(placeId, rating, comment) {
     try {
-        const response = await fetch(`${API_URL}/reviews`, {
+        const response = await fetch(`${API_URL}/reviews/`, {
             method: 'POST',
             headers: getHeaders(true), // Authentification requise
             body: JSON.stringify({
@@ -161,7 +180,7 @@ async function displayPlaces() {
     if (!container) return;
     
     container.innerHTML = '<p>Loading...</p>';
-    
+
     try {
         const places = await getAllPlaces();
         
@@ -201,22 +220,49 @@ function viewPlaceDetails(placeId) {
 async function displayPlaceDetails() {
     const params = new URLSearchParams(window.location.search);
     const placeId = params.get('id');
-    
+
     if (!placeId) {
-        document.body.innerHTML = '<p>Missing places ID</p>';
+        document.body.innerHTML = '<p>Missing place ID</p>';
         return;
     }
-    
+
     try {
+        // Récupérer la place
         const place = await getPlaceById(placeId);
-        
+
+        // Afficher le Host (owner)
+        const hostElement = document.getElementById("place-host");
+        const owner = await fetchUser(place.owner_id);
+
+        if (owner && owner.first_name) {
+            hostElement.textContent = `${owner.first_name} ${owner.last_name || ""}`;
+        } else {
+            hostElement.textContent = "Unknown host";
+        }
+
+        // Afficher les infos principales
         document.getElementById('place-title').textContent = place.title;
         document.getElementById('place-description').textContent = place.description;
-        document.getElementById('place-price').textContent = `${place.price}€ /nuit`;
-        
-        // Charger les avis
+        document.getElementById('place-price').textContent = `${place.price}€ /night`;
+        document.getElementById('place-location').textContent =
+            (place.latitude && place.longitude) 
+            ? `${place.latitude}, ${place.longitude}`
+            : 'Unknown';
+
+        // Afficher les amenities
+        const amenitiesList = document.getElementById("place-amenities");
+
+        if (!place.amenities || place.amenities.length === 0) {
+            amenitiesList.innerHTML = '<li>No amenities listed</li>';
+        } else {
+            amenitiesList.innerHTML = place.amenities
+                .map(a => `<li>${a.name}</li>`)
+                .join('');
+        }
+
+        // Charger les reviews
         await displayReviews(placeId);
-        
+
     } catch (error) {
         document.body.innerHTML = `<p>❌ Erreur: ${error.message}</p>`;
     }
@@ -242,7 +288,7 @@ async function displayReviews(placeId) {
                     <span class="rating">${'★'.repeat(review.rating)}</span>
                     <span class="author">${review.user_name}</span>
                 </div>
-                <p class="comment">${review.comment}</p>
+                <p class="comment">${text.comment}</p>
             </div>
         `).join('');
         
@@ -334,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkAuth(); // Vérifier l'authentification
         setupReviewForm();
     }
-    
+
     // Bouton de déconnexion
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {

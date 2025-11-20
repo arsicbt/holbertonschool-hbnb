@@ -9,8 +9,8 @@
             <p>You review the: <strong>{{ place.name }}</strong></p>
         {% endif %}
 
-        <label for="review">Your review :</label>
-        <textarea id="review" name="review" required></textarea>
+        <label for="comment">Your review :</label>
+        <textarea id="comment" name="comment" required></textarea>
 
         <label for="rating">Note :</label>
         <select id="rating" name="rating" required>
@@ -26,5 +26,5 @@
     </form>
 </main>
 
-<script src="{% static 'scripts.js' %}"></script>
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 {% endblock %}
