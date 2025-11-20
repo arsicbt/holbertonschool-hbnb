@@ -263,6 +263,21 @@ async function displayPlaceDetails() {
         // Charger les reviews
         await displayReviews(placeId);
 
+        // === Gérer le bouton "Add review" selon login ===
+    const addReviewBtn = document.getElementById('add-review-btn');
+    const loginWarning = document.getElementById('login-warning');
+
+    if (!isLoggedIn()) {
+        addReviewBtn.disabled = true;
+        addReviewBtn.style.opacity = "0.5";
+        addReviewBtn.style.cursor = "not-allowed";
+
+        loginWarning.style.display = "block"; // Afficher le message
+    } else {
+        loginWarning.style.display = "none";
+        addReviewBtn.disabled = false;
+    }
+
     } catch (error) {
         document.body.innerHTML = `<p>❌ Erreur: ${error.message}</p>`;
     }
