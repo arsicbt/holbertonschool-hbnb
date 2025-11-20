@@ -1,6 +1,8 @@
 # app/routes_front.py
 
 from flask import render_template
+from flask import Flask, redirect, url_for, session
+
 
 def init_routes(app):
     """
@@ -20,6 +22,15 @@ def init_routes(app):
     def login():
         print("🔐 Route '/login' appelée")  # Debug
         return render_template("login.html", title="Login Form")
+
+    @app.route('/logout')
+    def logout():
+        # Déconnecte l'utilisateur et le redirige vers la page d'accueil ou de login.
+        session.clear()  # supprime toutes les infos stockées côté serveur
+        print("🔐 Rederection '/logout' appelée")
+        return redirect(url_for('index'))  # remplace 'index' par le nom de ta route principale
+
+
 
     @app.route('/place')
     def place():

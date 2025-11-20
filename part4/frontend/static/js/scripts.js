@@ -396,9 +396,34 @@ document.addEventListener('DOMContentLoaded', () => {
         setupReviewForm();
     }
 
-    // Bouton de déconnexion
+    // --- Gestion du bouton de la Nav barre ---
+    const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', logout);
+    const homeBtn = document.getElementById('home-btn');
+
+    // Home redirige vers la page principale
+    if (homeBtn) {
+        homeBtn.addEventListener('click', () => {
+            window.location.href = '/index';  // ou la route d'accueil
+        });
     }
+
+    // Logout : visible seulement si connecté
+    if (logoutBtn) {
+        // Afficher le bouton uniquement si l'utilisateur est connecté
+        if (isLoggedIn()) {
+            logoutBtn.style.display = "inline-block"; // ou "block" selon ton style
+        } else {
+            logoutBtn.style.display = "none";
+        }
+
+        // Déconnexion
+        logoutBtn.addEventListener('click', logout);
+
+    // Login redirige vers la page login
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            window.location.href = '/login';
+        });
+    }}
 });

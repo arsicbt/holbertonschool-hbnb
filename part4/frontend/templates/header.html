@@ -1,8 +1,9 @@
 <header>
     <nav>
         <ul>
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('index') }}"> Home</a>
+            <button id="home-btn">Home</button> <!-- accessible tout le temp -->
+            <button id="login-btn">Login</button> <!-- visible seulement si l’utilisateur n’est pas connecté -->
+            <button id="logout-btn" style="display:none;">Logout</button> <!-- visible seulement si l’utilisateur est connecté -->
         </ul>
     </nav>
 </header>
