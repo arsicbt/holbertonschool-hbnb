@@ -50,12 +50,19 @@ def create_app(template_folder=None, static_folder=None):
     api.add_namespace(admin_ns, path='/admin')
     api.add_namespace(debug_ns, path='/debug') 
 
+    # Configuration de cookies
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies"] # stockage du JWT dans les cookies
+    app.config["JWT_COOKIE_SECURE"] = False        # protection contre les attaques XSS...
+    app.config["JWT_COOKIE_HTTPONLY"] = True       # ...en empechant js de lire les cookies
+    app.config["JWT_COOKIE_SAMESITE"] = "Lax"      # protection CSRF basique
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False
+
     print("✅ API chargée")
     
     # --- CORS : APRÈS l'API pour éviter les conflits ---
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:5500", "http://127.0.0.1:5500"],
+            "origins": ["http://localhost:5000", "http://127.0.0.1:5000"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True # autorisation du JWT 

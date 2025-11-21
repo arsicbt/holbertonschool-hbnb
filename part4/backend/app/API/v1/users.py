@@ -63,6 +63,24 @@ class UserList(Resource):
             for u in users
         ], 200
 
+# Sert à vérifier que l'utiisateur est bien connecté + aucun token dans le front
+@api.route('/me')
+class UserMe(Resource):
+    @jwt_required()  # cookie automatiquement détecté
+    def get(self):
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+
+        if not user:
+            return {"error": "User not found"}, 404
+
+        return {
+            "id": user.id,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name
+        }, 200
+
 
 @api.route('/<user_id>')
 class UserResource(Resource):

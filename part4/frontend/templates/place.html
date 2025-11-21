@@ -1,54 +1,65 @@
 {% extends "base.html" %}
 
 {% block content %}
-<body>
-    <main>
-        <section id="place-details">
-            <div class="place-header">
-                <h1 id="place-title">Loading...</h1>
-                <p class="price-tag" id="place-price"></p>
-            </div>
+<main>
+    <section id="place-details">
+        
+        <!-- HEADER -->
+        <div class="place-header">
+            <h1 id="place-title">Loading...</h1>
+            <p class="price-tag" id="place-price"></p>
+        </div>
 
-            <div class="place-content">
-                <div class="place-main-info">
-                    <h2>Description</h2>
-                    <p id="place-description"></p>
-                    
-                    <div class="place-meta">
-                        <div class="meta-item">
-                            <strong>Host:</strong>
-                            <span id="place-host">-</span>
-                        </div>
-                        <div class="meta-item">
-                            <strong>Location:</strong>
-                            <span id="place-location">-</span>
+        <!-- CONTENT -->
+        <div class="place-content">
+            <div class="place-main-info">
+                <h2>Description</h2>
+                <p id="place-description"></p>
+
+                <div class="place-meta">
+                    <div class="meta-item">
+                        <strong>Host:</strong>
+                        <span id="place-host">-</span>
                     </div>
-                </div>
 
-                <div class="place-sidebar">
-                    <div class="amenities-section">
-                        <h3>What this accommodation offers</h3>
-                        <ul id="place-amenities">
-                            <li>Loading...</li>
-                        </ul>
+                    <div class="meta-item">
+                        <strong>Location:</strong>
+                        <span id="place-location">-</span>
                     </div>
                 </div>
             </div>
 
-            <div class="reviews-section">
-                <h2>Traveler reviews</h2>
-                <div id="reviews-list">
-                    <p>Loading reviews...</p>
+            <div class="place-sidebar">
+                <div class="amenities-section">
+                    <h3>What this accommodation offers</h3>
+                    <ul id="place-amenities">
+                        <li>Loading...</li>
+                    </ul>
                 </div>
             </div>
-            <button id="add-review-btn" class="primary-btn" onclick="window.location.href='/add_review?place_id=${place.id}'">Add your own review</button>
-            <p id="login-warning" class="warning" style="display:none; color:red; margin-top:8px;">
-                You must be logged in to add a review.
-            </p>
-        </section>
-    </main>
+        </div>
 
-    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
-</body>
+        <!-- REVIEWS -->
+        <div class="reviews-section">
+            <h2>Traveler reviews</h2>
+            <div id="reviews-list">
+                <p>Loading reviews...</p>
+            </div>
+        </div>
+
+        <!-- ADD REVIEW BUTTON -->
+        <button id="add-review-btn" class="primary-btn"
+            onclick="window.location.href='/add_review?place_id={{ place_id }}'">
+            Add your own review
+        </button>
+
+        <!-- LOGIN WARNING -->
+        <p id="login-warning" class="warning" style="display:none; color:red; margin-top:8px;">
+            You must be logged in to add a review.
+        </p>
+
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 {% endblock %}
-</html>

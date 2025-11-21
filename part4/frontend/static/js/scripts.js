@@ -4,41 +4,10 @@ const API_URL = 'http://localhost:5000/api/v1';
 
 // === Utilitaires ===
 
-// Récupérer le token JWT stocké
-function getToken() {
-    return localStorage.getItem('token');
+function getHeaders() {
+    return { "Content-Type": "application/json" };
 }
 
-// Sauvegarder le token JWT
-function saveToken(token) {
-    localStorage.setItem('token', token);
-}
-
-// Supprimer le token (logout)
-function clearToken() {
-    localStorage.removeItem('token');
-}
-
-// Vérifier si l'utilisateur est connecté
-function isLoggedIn() {
-    return !!getToken();
-}
-
-// Headers par défaut pour les requêtes
-function getHeaders(includeAuth = false) {
-    const headers = {
-        'Content-Type': 'application/json'
-    };
-    
-    if (includeAuth) {
-        const token = getToken();
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-    }
-    
-    return headers;
-}
 
 // Gestion centralisée des erreurs
 async function handleResponse(response) {
@@ -49,6 +18,16 @@ async function handleResponse(response) {
         throw new Error(error.error || error.message || 'Erreur inconnue');
     }
     return response.json();
+}
+
+// Vérifier si l'utilisateur est connecté
+async function isLoggedIn() {
+    const res = await fetch(`${API_URL}/users/me`, {
+        method: "GET",
+        credentials: "include"
+    });
+
+    return res.ok;
 }
 
 
@@ -89,6 +68,7 @@ async function getPlaceById(placeId) {
     try {
         const response = await fetch(`${API_URL}/places/${placeId}`, {
             method: 'GET',
+            credentials: "include", // Pour gérer les cookies
             headers: getHeaders()
         });
         return await handleResponse(response);
@@ -100,31 +80,51 @@ async function getPlaceById(placeId) {
 
 // --- AUTHENTIFICATION ---
 async function login(email, password) {
-    try {
-        const response = await fetch(`${API_URL}/auth/login`, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify({ email, password })
-        });
-        
-        const data = await handleResponse(response);
-        
-        if (data.access_token) {
-            saveToken(data.access_token);
-        }
+    const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: getHeaders(),
+        credentials: "include", // Gérer les cookies
+        body: JSON.stringify({ email, password })
+    });
 
-        return data;
-
-    } catch (error) {
-        console.error('Erreur login:', error);
-        throw error;
-    }
+    return await handleResponse(response);
 }
 
-function logout() {
-    clearToken();
-    window.location.href = "/login";
+
+async function logout() {
+    await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include"
+    });
+
+    window.location.href = '/login';
 }
+
+
+// --- Filters ---
+function priceFilter(places) {
+    const filter = document.getElementById('proce-filter');
+    if (!filter) return;
+
+    // Récupérer les prix et uniques (utilisation du set) et les trier 
+    const prices = [...new Set(places.map(p => p.price))].sort((a,b) => a-b);
+
+    // Ajouter les options
+    filter.innerHTML = '<option value="">-- No max price --</option>';
+    prices.forEach(price => {
+        const option = document.createElement('option');
+        option.value = price;
+        option.textContent = `€${price} max`;
+        filter.appendChild(option);
+    });
+
+    // Evenement du filtre
+    filter.addEventListener('change', () => {
+        const maxPrice = parInt(filter.value);
+        displayPlaces(places, maxPrice)
+    });
+}
+
 
 // --- REVIEWS ---
 async function getReviewsByPlace(placeId) {
@@ -264,19 +264,22 @@ async function displayPlaceDetails() {
         await displayReviews(placeId);
 
         // === Gérer le bouton "Add review" selon login ===
-    const addReviewBtn = document.getElementById('add-review-btn');
-    const loginWarning = document.getElementById('login-warning');
+        const addReviewBtn = document.getElementById('add-review-btn');
+        const loginWarning = document.getElementById('login-warning');
 
-    if (!isLoggedIn()) {
-        addReviewBtn.disabled = true;
-        addReviewBtn.style.opacity = "0.5";
-        addReviewBtn.style.cursor = "not-allowed";
+        const logged = await isLoggedIn();
 
-        loginWarning.style.display = "block"; // Afficher le message
-    } else {
-        loginWarning.style.display = "none";
-        addReviewBtn.disabled = false;
-    }
+        if (!logged) {
+            addReviewBtn.disabled = true;
+            addReviewBtn.style.opacity = "0.5";
+            addReviewBtn.style.cursor = "not-allowed";
+            loginWarning.style.display = "block";
+        } else {
+            loginWarning.style.display = "none";
+            addReviewBtn.disabled = false;
+            addReviewBtn.style.opacity = "1";
+            addReviewBtn.style.cursor = "pointer";
+        }
 
     } catch (error) {
         document.body.innerHTML = `<p>❌ Erreur: ${error.message}</p>`;
@@ -404,26 +407,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Home redirige vers la page principale
     if (homeBtn) {
         homeBtn.addEventListener('click', () => {
-            window.location.href = '/index';  // ou la route d'accueil
+            window.location.href = '/index';
         });
     }
 
-    // Logout : visible seulement si connecté
-    if (logoutBtn) {
-        // Afficher le bouton uniquement si l'utilisateur est connecté
-        if (isLoggedIn()) {
-            logoutBtn.style.display = "inline-block"; // ou "block" selon ton style
-        } else {
-            logoutBtn.style.display = "none";
+    // Mise à jour dynamique selon login
+    isLoggedIn().then(isAuth => {
+
+        if (logoutBtn) {
+            logoutBtn.style.display = isAuth ? "inline-block" : "none";
+            logoutBtn.onclick = async () => {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: "POST",
+                    credentials: "include"
+                });
+                window.location.href = "/login";
+            };
         }
 
-        // Déconnexion
-        logoutBtn.addEventListener('click', logout);
-
-    // Login redirige vers la page login
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            window.location.href = '/login';
-        });
-    }}
+        if (loginBtn) {
+            loginBtn.style.display = isAuth ? "none" : "inline-block";
+            loginBtn.onclick = () => window.location.href = "/login";
+        }
+    });
 });
