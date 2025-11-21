@@ -4,8 +4,11 @@ const API_URL = 'http://localhost:5000/api/v1';
 
 // === Utilitaires ===
 
-function getHeaders() {
-    return { "Content-Type": "application/json" };
+function getHeaders(requireAuth = false) {
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    return headers;
 }
 
 
@@ -145,10 +148,11 @@ async function createReview(placeId, rating, comment) {
         const response = await fetch(`${API_URL}/reviews/`, {
             method: 'POST',
             headers: getHeaders(true), // Authentification requise
+            credentials: 'include', // envoie des cookies JWT
             body: JSON.stringify({
                 place_id: placeId,
                 rating: parseInt(rating),
-                comment: comment
+                text: text
             })
         });
         return await handleResponse(response);
@@ -279,8 +283,11 @@ async function displayPlaceDetails() {
             addReviewBtn.disabled = false;
             addReviewBtn.style.opacity = "1";
             addReviewBtn.style.cursor = "pointer";
-        }
 
+            addReviewBtn.onclick = () => {
+                window.location.href = `/add_review?place_id=${placeId}`;
+            };
+        }
     } catch (error) {
         document.body.innerHTML = `<p>❌ Erreur: ${error.message}</p>`;
     }
