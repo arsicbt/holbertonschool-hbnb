@@ -6,17 +6,12 @@
     <section id="filter">
         <label for="price-filter">Max Price:</label>
         <select id="price-filter">
-            <!-- Options will be populated dynamically -->
         </select>
     </section>
-
-    <!-- Places list section -->
-    <section id="places-list">
-        <!-- List of places will be populated dynamically -->
-    </section>
+    <!-- Liste of places -->
+    <section id="places-list"></section>
 </main>
 
-<!-- JS for dynamic behavior -->
 <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 
 {% endblock %}
