@@ -2,7 +2,6 @@ from app import db
 from datetime import datetime
 import uuid
 
-
 class Review(db.Model):
 
     __tablename__ = "reviews"
@@ -16,5 +15,9 @@ class Review(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # One to Many relationship
+    # Relation vers Place
     place = db.relationship("Place", backref="reviews", lazy=True)
+
+    # Relation vers User (pour le front)
+    user = db.relationship("User", back_populates="reviews", lazy=True)
+

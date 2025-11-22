@@ -1,4 +1,4 @@
-from app import db  # ton instance SQLAlchemy
+from app import db 
 import uuid
 
 class PlaceAmenity(db.Model):
