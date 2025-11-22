@@ -2,19 +2,10 @@
 
 {% block content %}
 <main>
-
-    {% if not user %}
-        <p style="color: rgb(255, 83, 83); text-align:center; margin-top:20px;">
-            You must be logged in to add a review.
-        </p>
-    {% else %}
-
     <form id="review-form" method="post">
         <h2>Add review</h2>
 
-        {% if place %}
-            <p>You are reviewing: <strong>{{ place.name }}</strong></p>
-        {% endif %}
+        <input type="hidden" id="place-id" value="{{ place_id }}">
 
         <label for="comment">Your review:</label>
         <textarea id="comment" name="comment" required></textarea>
@@ -31,9 +22,6 @@
 
         <button type="submit">Send review</button>
     </form>
-
-    {% endif %}
-
 </main>
 
 <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>

@@ -30,8 +30,6 @@ def init_routes(app):
         print("🔐 Rederection '/logout' appelée")
         return redirect(url_for('index'))  # remplace 'index' par le nom de ta route principale
 
-
-
     @app.route('/place')
     def place():
         print("📍 Route '/place' appelée")  # Debug

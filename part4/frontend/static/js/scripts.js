@@ -143,7 +143,7 @@ async function getReviewsByPlace(placeId) {
     }
 }
 
-async function createReview(placeId, rating, comment) {
+async function createReview(placeId, rating, description) {
     try {
         const response = await fetch(`${API_URL}/reviews/`, {
             method: 'POST',
@@ -152,7 +152,7 @@ async function createReview(placeId, rating, comment) {
             body: JSON.stringify({
                 place_id: placeId,
                 rating: parseInt(rating),
-                text: text
+                text: description 
             })
         });
         return await handleResponse(response);
@@ -311,9 +311,9 @@ async function displayReviews(placeId) {
             <div class="review">
                 <div class="review-header">
                     <span class="rating">${'★'.repeat(review.rating)}</span>
-                    <span class="author">${review.user_name}</span>
+                    <span class="author">${review.user?.first_name || 'Unknown user'}</span>
                 </div>
-                <p class="comment">${text.comment}</p>
+                <p class="comment">${review.text}</p>
             </div>
         `).join('');
         
@@ -357,7 +357,7 @@ function setupReviewForm() {
         const params = new URLSearchParams(window.location.search);
         const placeId = params.get('place_id');
         const rating = document.getElementById('rating').value;
-        const comment = document.getElementById('comment').value;
+        const comment = document.getElementById('description').value;
         
         if (!placeId) {
             alert('ID du logement manquant');

@@ -215,9 +215,8 @@ class PlaceReviewList(Resource):
         return [
             {
                 'id': review.id,
-                'comment': review.text,
-                'rating': review.rating,
-                'user_name': review.user.name
+                'text': review.text,
+                'rating': review.rating
             }
             for review in reviews
         ], 200
