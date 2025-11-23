@@ -59,8 +59,12 @@ class ReviewList(Resource):
             "text": review_data.get("text", "")
         })
 
-        print("Data reçue:", review_data)
-        print("Text envoyé:", review_data.get("text"))
+        # ← AJOUTE CES LOGS
+        print("=== DEBUG ===")
+        print("review_data complet:", review_data)
+        print("text dans review_data:", review_data.get("text"))
+        print("=== FIN DEBUG ===")
+        
         return {
             'id': new_review.id,
             'text': new_review.text,

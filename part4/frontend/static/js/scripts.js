@@ -155,7 +155,7 @@ function priceFilter(places) {
 
     // Evenement du filtre
     filter.addEventListener('change', () => {
-        const maxPrice = parInt(filter.value);
+        const maxPrice = parseInt(filter.value);
         displayPlaces(places, maxPrice)
     });
 }
@@ -273,7 +273,7 @@ async function displayPlaces() {
                         <span class="price">${place.price}€ / night</span>
                         <span class="rating">${getStars(avgRating)} (${avgRating})</span>
                     </div>
-                    <button onclick="viewPlaceDetails('${place.id}')">View details</button>
+                    <button class="details-button" onclick="viewPlaceDetails('${place.id}')">View details</button>
                 </div>
             `;
 
@@ -376,15 +376,14 @@ async function displayReviews(placeId) {
     try {
         const reviews = await getReviewsByPlace(placeId);
         console.log('✅ Reviews reçues:', reviews);
-         console.log('Premier review:', reviews[0]);
-        
+
         if (!reviews || reviews.length === 0) {
             container.innerHTML = '<p>No reviews yet</p>';
             return;
         }
-        
+
         container.innerHTML = reviews.map(review => `
-            <div class="review">
+            <div class="review-card">
                 <div class="review-header">
                     <span class="rating">${'★'.repeat(review.rating)}</span>
                     <span class="author">${review.user?.first_name || 'Unknown user'}</span>
@@ -393,10 +392,14 @@ async function displayReviews(placeId) {
             </div>
         `).join('');
         
+        // Debug : afficher le texte du premier commentaire
+        console.log('Premier commentaire:', reviews[0].text);
+
     } catch (error) {
         container.innerHTML = `<p>❌ Erreur: ${error.message}</p>`;
     }
 }
+
 
 // Gérer le formulaire de login
 function setupLoginForm() {
@@ -457,7 +460,7 @@ function setupReviewForm() {
 // Vérifier l'authentification
 function checkAuth() {
     if (!isLoggedIn()) {
-        window.location.href = '/login';
+        window.location.href = '/index';
     }
 }
 

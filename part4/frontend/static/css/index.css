@@ -55,10 +55,11 @@
 }
 
 .place-card {
-    background-color: var(--white);
-    padding: 1.5rem;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    margin: 20px;              /* marge extérieure */
+    padding: 10px;             /* marge intérieure */
+    border: 1px solid #ddd;    /* bordure grise */
+    border-radius: 10px;       /* coins arrondis */
+    box-shadow: var(--shadow-medium);
     transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
 }

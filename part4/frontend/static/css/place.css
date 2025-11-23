@@ -121,11 +121,12 @@
     margin-bottom: 2rem;
 }
 
-.review {
+.review-card {
     background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: var(--radius);
-    margin-bottom: 1rem;
+    padding: 10px;
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 10px;
     box-shadow: var(--shadow);
 }
 
@@ -136,16 +137,16 @@
     margin-bottom: 0.5rem;
 }
 
-.review .rating {
+.review-card .rating {
     color: #f39c12;
 }
 
-.review .author {
+.review-card .author {
     font-weight: 600;
     color: var(--text-color);
 }
 
-.review .comment {
+.review-card .comment {
     color: var(--text-color);
     line-height: 1.6;
 }
