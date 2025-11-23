@@ -1,86 +1,50 @@
-/* Navigation */
-nav {
-    background-color: var(--primary-color);
-    padding: 15px 0;
-    box-shadow: var(--shadow);
-}
-
-nav ul {
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-}
-
-nav ul li {
-    margin: 0 20px;
-}
-
-nav ul li a {
-    color: var(--bg-light);
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-decoration: none;
-    transition: background 0.3s;
-}
-
-nav ul li a:hover {
-    background-color: var(--white);
-    color: var(--primary-color);
-}
-
-/* Container principal */
-.content {
-    max-width: 1000px;
-    margin: 30px auto;
-    padding: 20px;
-    background-color: var(--white);
-    border-radius: var(--radius-medium);
-    box-shadow: var(--shadow-medium);
-}
-
-main {
-    padding: 2rem;
-}
-
-/* Header commun */
 header {
+    display: flex;
+    justify-content: space-between; /* logo à gauche, liens à droite */
+    align-items: center;
+    padding: 1rem 2rem;
     background-color: var(--primary-color);
-    padding: 1rem 0;
     box-shadow: var(--shadow);
 }
 
-header nav {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+header .logo {
+    height: 50px;
+}
+
+.nav-links {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 1rem; /* espace entre boutons */
 }
 
-header h1 {
-    margin: 0;
+.nav-links button {
+    background-color: var(--primary-color);
     color: var(--white);
-    font-size: 1.5rem;
-}
-
-header nav div {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-header a {
-    color: var(--white);
-    text-decoration: none;
+    border: none;
     padding: 0.5rem 1rem;
     border-radius: var(--radius);
+    font-weight: bold;
+    cursor: pointer;
     transition: background 0.3s;
 }
 
-header a:hover {
+.nav-links button:hover {
     background: rgba(255,255,255,0.2);
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+    }
+
+    .nav-links button {
+        width: 100%;
+    }
 }
