@@ -1,5 +1,3 @@
-// part4/static/js/scripts.js
-
 const API_URL = 'http://localhost:5000/api/v1';
 
 // === Utilitaires ===
@@ -8,7 +6,6 @@ function getHeaders(requireAuth = false) {
     const headers = { 'Content-Type': 'application/json' };
 
     if (requireAuth) {
-        // Récupérer le JWT dans le cookie
         const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
         const token = match ? match[2] : null;
 
@@ -20,8 +17,6 @@ function getHeaders(requireAuth = false) {
     return headers;
 }
 
-
-// Gestion centralisée des erreurs
 async function handleResponse(response) {
     if (!response.ok) {
         const error = await response.json().catch(() => ({
@@ -32,7 +27,6 @@ async function handleResponse(response) {
     return response.json();
 }
 
-// Vérifier si l'utilisateur est connecté
 async function isLoggedIn() {
     const res = await fetch(`${API_URL}/users/me`, {
         method: "GET",
@@ -42,10 +36,8 @@ async function isLoggedIn() {
     return res.ok;
 }
 
-
 // === API Calls ===
 
-// --- USERS ---
 async function fetchUser(userId) {
     try {
         const response = await fetch(`http://127.0.0.1:5000/api/v1/users/${userId}`);
@@ -62,18 +54,16 @@ async function fetchUser(userId) {
     }
 }
 
-// --- PLACES ---
 async function getAllPlaces() {
     try {
         const response = await fetch(`${API_URL}/places/`);
         if (!response.ok) throw new Error('Erreur API');
 
-        // Lire le JSON **une seule fois**
         const data = await response.json();
-        return data; // tableau de places
+        return data;
     } catch (e) {
         console.error("Erreur getAllPlaces:", e);
-        return []; // renvoyer un tableau vide en cas d'erreur
+        return [];
     }
 }
 
@@ -81,7 +71,7 @@ async function getPlaceById(placeId) {
     try {
         const response = await fetch(`${API_URL}/places/${placeId}`, {
             method: 'GET',
-            credentials: "include", // Pour gérer les cookies
+            credentials: "include",
             headers: getHeaders()
         });
         return await handleResponse(response);
@@ -91,7 +81,6 @@ async function getPlaceById(placeId) {
     }
 }
 
-// --- AUTHENTIFICATION ---
 async function login(email, password) {
     try {
         const response = await fetch(`${API_URL}/auth/login`, {
@@ -111,12 +100,10 @@ async function login(email, password) {
 
         const data = await response.json();
 
-        // Stocker le JWT dans un cookie
         if (data.access_token) {
             document.cookie = `token=${data.access_token}; path=/`;
         }
 
-        // Rediriger vers la page principale
         window.location.href = '/index.html';
 
     } catch (error) {
@@ -124,7 +111,6 @@ async function login(email, password) {
         throw error;
     }
 }
-
 
 async function logout() {
     await fetch(`${API_URL}/auth/logout`, {
@@ -135,33 +121,6 @@ async function logout() {
     window.location.href = '/login';
 }
 
-
-// --- Filters ---
-function priceFilter(places) {
-    const filter = document.getElementById('proce-filter');
-    if (!filter) return;
-
-    // Récupérer les prix et uniques (utilisation du set) et les trier 
-    const prices = [...new Set(places.map(p => p.price))].sort((a,b) => a-b);
-
-    // Ajouter les options
-    filter.innerHTML = '<option value="">-- No max price --</option>';
-    prices.forEach(price => {
-        const option = document.createElement('option');
-        option.value = price;
-        option.textContent = `€${price} max`;
-        filter.appendChild(option);
-    });
-
-    // Evenement du filtre
-    filter.addEventListener('change', () => {
-        const maxPrice = parseInt(filter.value);
-        displayPlaces(places, maxPrice)
-    });
-}
-
-
-// --- REVIEWS ---
 async function getReviewsByPlace(placeId) {
     try {
         const response = await fetch(`${API_URL}/places/${placeId}/reviews`, {
@@ -179,8 +138,8 @@ async function createReview(placeId, rating, description) {
     try {
         const response = await fetch(`${API_URL}/reviews/`, {
             method: 'POST',
-            headers: getHeaders(true), // Authentification requise
-            credentials: 'include', // envoie des cookies JWT
+            headers: getHeaders(true),
+            credentials: 'include',
             body: JSON.stringify({
                 place_id: placeId,
                 rating: parseInt(rating),
@@ -194,7 +153,6 @@ async function createReview(placeId, rating, description) {
     }
 }
 
-// --- USERS ---
 async function getCurrentUser() {
     try {
         const response = await fetch(`${API_URL}/users/me`, {
@@ -203,7 +161,6 @@ async function getCurrentUser() {
         });
 
         if (response.status === 401) {
-            // Pas connecté → on renvoie null SANS erreur
             return null;
         }
 
@@ -211,22 +168,26 @@ async function getCurrentUser() {
         
     } catch (error) {
         console.error('Erreur getCurrentUser:', error);
-        return null; // ← On renvoie null même en cas d'erreur réseau
+        return null;
     }
 }
 
-
 // === UI Functions ===
-// Récupérer les reviews d'une place pour avoir la moyenne des notes
-async function getPlaceReviews(placeId) {
-    try {
-        const res = await fetch(`http://localhost:5000/api/v1/places/${placeId}/reviews`);
-        if (!res.ok) throw new Error('Impossible de récupérer les reviews');
-        const data = await res.json();
-        return data; // un tableau de reviews [{rating: X, comment: "..."}, ...]
-    } catch (error) {
-        console.error(`Erreur reviews place ${placeId}:`, error);
-        return []; // en cas d'erreur, retourner tableau vide
+
+// Variables globales pour le filtrage
+let allPlaces = []; 
+let allReviews = {};
+
+// Charger toutes les reviews pour toutes les places
+async function loadAllReviews(places) {
+    for (const place of places) {
+        try {
+            const reviews = await getReviewsByPlace(place.id);
+            allReviews[place.id] = reviews || [];
+        } catch (error) {
+            console.error(`Erreur chargement reviews pour place ${place.id}:`, error);
+            allReviews[place.id] = [];
+        }
     }
 }
 
@@ -238,40 +199,69 @@ function getStars(rating) {
     return '★'.repeat(fullStars) + halfStar;
 }
 
+// Initialiser le filtre de prix
+function priceFilter(places) {
+    const filter = document.getElementById('price-filter');
+    if (!filter) return;
 
+    const prices = [...new Set(places.map(p => p.price))].sort((a, b) => a - b);
 
-// Afficher les places dans la page d'accueil
-async function displayPlaces() {
+    filter.innerHTML = '<option value="">-- No max price --</option>';
+    prices.forEach(price => {
+        const option = document.createElement('option');
+        option.value = price;
+        option.textContent = `€${price} max`;
+        filter.appendChild(option);
+    });
+
+    filter.addEventListener('change', () => {
+        const maxPrice = filter.value ? parseInt(filter.value) : null;
+        displayPlaces(allPlaces, maxPrice);
+    });
+}
+
+// Afficher les places avec filtrage 
+async function displayPlaces(places = null, maxPrice = null) {
     const container = document.getElementById('places-list');
     if (!container) return;
 
     container.innerHTML = '<p>Loading...</p>';
 
     try {
-        const places = await getAllPlaces();
+        // Utiliser allPlaces si aucun paramètre n'est fourni
+        let toDisplay = places || allPlaces;
 
-        if (places.length === 0) {
+        if (toDisplay.length === 0) {
             container.innerHTML = '<p>No places yet...</p>';
             return;
         }
 
-        container.innerHTML = ''; // vider le container avant d'ajouter les cartes
+        // Appliquer le filtre de prix si fourni
+        if (maxPrice && maxPrice > 0) {
+            toDisplay = toDisplay.filter(place => place.price <= maxPrice);
+        }
 
-        for (const place of places) {
-            // Récupérer les reviews pour cette place
-            const reviews = await getPlaceReviews(place.id);
+        if (toDisplay.length === 0) {
+            container.innerHTML = '<p>No places match your criteria</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+
+        // Afficher chaque place
+        for (const place of toDisplay) {
+            const reviews = allReviews[place.id] || [];
             const avgRating = reviews.length > 0
                 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
                 : null;
 
-            // Créer la carte HTML
             const cardHTML = `
                 <div class="place-card" data-id="${place.id}">
                     <h3>${place.title}</h3>
                     <p>${place.description}</p>
                     <div class="place-info">
                         <span class="price">${place.price}€ / night</span>
-                        <span class="rating">${getStars(avgRating)} (${avgRating})</span>
+                        <span class="rating">${getStars(avgRating)} ${avgRating ? `(${avgRating})` : 'No reviews'}</span>
                     </div>
                     <button class="details-button" onclick="viewPlaceDetails('${place.id}')">View details</button>
                 </div>
@@ -285,6 +275,39 @@ async function displayPlaces() {
             <div class="error">
                 <p>Erreur: ${error.message}</p>
                 <p>Assure-toi que le backend est lancé sur http://localhost:5000/api/v1</p>
+            </div>
+        `;
+    }
+}
+
+// Charger et afficher toutes les places
+async function loadAndDisplayPlaces() {
+    const container = document.getElementById('places-list');
+    if (!container) return;
+
+    container.innerHTML = '<p>Loading...</p>';
+
+    try {
+        allPlaces = await getAllPlaces();
+
+        if (allPlaces.length === 0) {
+            container.innerHTML = '<p>No places yet...</p>';
+            return;
+        }
+
+        // Charger toutes les reviews
+        await loadAllReviews(allPlaces);
+
+        // Initialiser le filtre
+        priceFilter(allPlaces);
+
+        // Afficher toutes les places
+        await displayPlaces(allPlaces);
+
+    } catch (error) {
+        container.innerHTML = `
+            <div class="error">
+                <p>❌ Error: ${error.message}</p>
             </div>
         `;
     }
@@ -306,10 +329,8 @@ async function displayPlaceDetails() {
     }
 
     try {
-        // Récupérer la place
         const place = await getPlaceById(placeId);
 
-        // Afficher le Host (owner)
         const hostElement = document.getElementById("place-host");
         const owner = await fetchUser(place.owner_id);
 
@@ -319,7 +340,6 @@ async function displayPlaceDetails() {
             hostElement.textContent = "Unknown host";
         }
 
-        // Afficher les infos principales
         document.getElementById('place-title').textContent = place.title;
         document.getElementById('place-description').textContent = place.description;
         document.getElementById('place-price').textContent = `${place.price}€ /night`;
@@ -328,7 +348,6 @@ async function displayPlaceDetails() {
             ? `${place.latitude}, ${place.longitude}`
             : 'Unknown';
 
-        // Afficher les amenities
         const amenitiesList = document.getElementById("place-amenities");
 
         if (!place.amenities || place.amenities.length === 0) {
@@ -339,10 +358,8 @@ async function displayPlaceDetails() {
                 .join('');
         }
 
-        // Charger les reviews
         await displayReviews(placeId);
 
-        // === Gérer le bouton "Add review" selon login ===
         const addReviewBtn = document.getElementById('add-review-btn');
         const loginWarning = document.getElementById('login-warning');
 
@@ -392,14 +409,12 @@ async function displayReviews(placeId) {
             </div>
         `).join('');
         
-        // Debug : afficher le texte du premier commentaire
         console.log('Premier commentaire:', reviews[0].text);
 
     } catch (error) {
         container.innerHTML = `<p>❌ Erreur: ${error.message}</p>`;
     }
 }
-
 
 // Gérer le formulaire de login
 function setupLoginForm() {
@@ -465,12 +480,12 @@ function checkAuth() {
 }
 
 // === Initialisation au chargement de la page ===
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('Scripts chargés, API:', API_URL);
     
     // Page d'accueil
     if (document.getElementById('places-list')) {
-        displayPlaces();
+        await loadAndDisplayPlaces();  // ← Attendre que les places se chargent
     }
     
     // Page de détails
@@ -485,23 +500,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Page d'ajout d'avis
     if (document.getElementById('review-form')) {
-        checkAuth(); // Vérifier l'authentification
+        checkAuth();
         setupReviewForm();
     }
 
-    // --- Gestion du bouton de la Nav barre ---
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const homeBtn = document.getElementById('home-btn');
 
-    // Home redirige vers la page principale
     if (homeBtn) {
         homeBtn.addEventListener('click', () => {
             window.location.href = '/index';
         });
     }
 
-    // Mise à jour dynamique selon login
     isLoggedIn().then(isAuth => {
 
         if (logoutBtn) {
