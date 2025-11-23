@@ -301,6 +301,7 @@ async function displayReviews(placeId) {
     try {
         const reviews = await getReviewsByPlace(placeId);
         console.log('✅ Reviews reçues:', reviews);
+         console.log('Premier review:', reviews[0]);
         
         if (!reviews || reviews.length === 0) {
             container.innerHTML = '<p>No reviews yet</p>';
@@ -353,12 +354,16 @@ function setupReviewForm() {
     
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const params = new URLSearchParams(window.location.search);
         const placeId = params.get('place_id');
         const rating = document.getElementById('rating').value;
-        const comment = document.getElementById('description').value;
+        const comment = document.getElementById('comment').value;
         
+        console.log('Rating:', rating);
+        console.log('Comment/Description:', comment);
+        console.log('PlaceId:', placeId);
+
         if (!placeId) {
             alert('ID du logement manquant');
             return;

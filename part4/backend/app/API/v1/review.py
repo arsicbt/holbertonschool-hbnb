@@ -59,6 +59,8 @@ class ReviewList(Resource):
             "text": review_data.get("text", "")
         })
 
+        print("Data reçue:", review_data)
+        print("Text envoyé:", review_data.get("text"))
         return {
             'id': new_review.id,
             'text': new_review.text,
