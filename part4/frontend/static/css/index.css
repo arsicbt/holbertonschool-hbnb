@@ -55,9 +55,12 @@
 }
 
 .place-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     margin: 20px;              /* marge extérieure */
     padding: 10px;             /* marge intérieure */
-    border: 1px solid #ddd;    /* bordure grise */
+    border: 1px solid #ddd;  /* bordure grise */
     border-radius: 10px;       /* coins arrondis */
     box-shadow: var(--shadow-medium);
     transition: transform 0.3s, box-shadow 0.3s;
@@ -78,6 +81,17 @@
     color: var(--text-light);
     margin-bottom: 1rem;
     line-height: 1.5;
+}
+
+.details-button {
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    margin-top: auto;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
 }
 
 .place-info {
@@ -101,5 +115,25 @@
 
 .place-card button {
     width: 100%;
+    margin-top: 1rem;
+}
+
+/* J'enleve le margin demandé pour pas avoir de trou au milieu  */
+.place-card {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.place-card p {
+    min-height: 60px; /* ajuste selon la longueur moyenne de tes textes */
+}
+
+
+.place-info {
+    margin-top: auto; /* pousse la zone 'place-info' vers le bas */
+}
+
+.details-button {
     margin-top: 1rem;
 }
