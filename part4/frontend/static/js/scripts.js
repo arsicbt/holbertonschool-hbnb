@@ -204,21 +204,33 @@ function priceFilter(places) {
     const filter = document.getElementById('price-filter');
     if (!filter) return;
 
-    const prices = [...new Set(places.map(p => p.price))].sort((a, b) => a - b);
+    // Options imposées
+    const priceOptions = ["All", 10, 50, 100, 200, 500, 1500];
 
-    filter.innerHTML = '<option value="">-- No max price --</option>';
-    prices.forEach(price => {
-        const option = document.createElement('option');
-        option.value = price;
-        option.textContent = `€${price} max`;
-        filter.appendChild(option);
+    filter.innerHTML = ""; // reset
+
+    priceOptions.forEach(option => {
+        const opt = document.createElement('option');
+        opt.value = option === "All" ? "all" : option;
+        opt.textContent = option === "All" ? "All" : option;
+        filter.appendChild(opt);
     });
 
+    // Event listener de filtrage
     filter.addEventListener('change', () => {
-        const maxPrice = filter.value ? parseInt(filter.value) : null;
-        displayPlaces(allPlaces, maxPrice);
+        const value = filter.value;
+
+        let filtered = places;
+
+        if (value !== "all") {
+            const maxPrice = parseInt(value);
+            filtered = places.filter(p => p.price <= maxPrice);
+        }
+
+        displayPlaces(filtered);
     });
 }
+
 
 // Afficher les places avec filtrage 
 async function displayPlaces(places = null, maxPrice = null) {
@@ -342,6 +354,7 @@ async function displayPlaceDetails() {
 
         document.getElementById('place-title').textContent = place.title;
         document.getElementById('place-description').textContent = place.description;
+        displayAmenities(place);
         document.getElementById('place-price').textContent = `${place.price}€ /night`;
         document.getElementById('place-location').textContent =
             (place.latitude && place.longitude) 
@@ -384,6 +397,46 @@ async function displayPlaceDetails() {
         document.body.innerHTML = `<p>❌ Erreur: ${error.message}</p>`;
     }
 }
+
+// Afficher les logos des amenité
+const amenitiesLogos = {
+    wifi: "/static/images/icon_wifi.png",
+    bedroom: "/static/images/icon_bed.png",
+    bath: "/static/images/icon_bath.png"
+
+};
+
+function displayAmenities(place) {
+    const list = document.getElementById("place-amenities");
+    const icons = document.querySelector(".amenities-list");
+
+    if (!list || !icons) return;
+
+    // reset
+    list.innerHTML = "";
+    icons.innerHTML = "";
+
+    place.amenities.forEach((a) => {
+        // 1️⃣ Texte dans la liste
+        const li = document.createElement("li");
+        li.textContent = a.name;
+        list.appendChild(li);
+
+        // 2️⃣ Logo
+        const key = a.name.toLowerCase();
+        const logo = amenitiesLogos[key];
+
+        if (logo) {
+            const img = document.createElement("img");
+            img.src = logo;
+            img.alt = key;
+            img.classList.add("amenity-icon");
+            icons.appendChild(img);
+        }
+    });
+}
+
+
 
 // Afficher les avis
 async function displayReviews(placeId) {

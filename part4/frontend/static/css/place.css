@@ -177,3 +177,21 @@
         position: static;
     }
 }
+
+/* Affichage des logos */
+#amenities-section {
+    margin-top: 2rem;
+}
+
+.amenities-list {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.amenity-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
