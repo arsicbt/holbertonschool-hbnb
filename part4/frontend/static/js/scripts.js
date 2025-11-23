@@ -5,9 +5,18 @@ const API_URL = 'http://localhost:5000/api/v1';
 // === Utilitaires ===
 
 function getHeaders(requireAuth = false) {
-    const headers = {
-        'Content-Type': 'application/json'
-    };
+    const headers = { 'Content-Type': 'application/json' };
+
+    if (requireAuth) {
+        // Récupérer le JWT dans le cookie
+        const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+        const token = match ? match[2] : null;
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+    }
+
     return headers;
 }
 
@@ -84,14 +93,36 @@ async function getPlaceById(placeId) {
 
 // --- AUTHENTIFICATION ---
 async function login(email, password) {
-    const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: getHeaders(),
-        credentials: "include", // Gérer les cookies
-        body: JSON.stringify({ email, password })
-    });
+    try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
 
-    return await handleResponse(response);
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({
+                error: `HTTP ${response.status}: ${response.statusText}`
+            }));
+            throw new Error(err.error || 'Erreur inconnue');
+        }
+
+        const data = await response.json();
+
+        // Stocker le JWT dans un cookie
+        if (data.access_token) {
+            document.cookie = `token=${data.access_token}; path=/`;
+        }
+
+        // Rediriger vers la page principale
+        window.location.href = '/index.html';
+
+    } catch (error) {
+        console.error('Login error:', error);
+        throw error;
+    }
 }
 
 

@@ -12,6 +12,16 @@
     margin-bottom: 2rem;
 }
 
+.content {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: var(--white); /* block blanc */
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-medium);
+}
+
+
 /* Filtre */
 #filter {
     margin-bottom: 1.5rem;
