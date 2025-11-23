@@ -56,14 +56,15 @@ async function fetchUser(userId) {
 // --- PLACES ---
 async function getAllPlaces() {
     try {
-        const response = await fetch(`${API_URL}/places`, {
-            method: 'GET',
-            headers: getHeaders()
-        });
-        return await handleResponse(response);
-    } catch (error) {
-        console.error('Erreur getAllPlaces:', error);
-        throw error;
+        const response = await fetch(`${API_URL}/places/`);
+        if (!response.ok) throw new Error('Erreur API');
+
+        // Lire le JSON **une seule fois**
+        const data = await response.json();
+        return data; // tableau de places
+    } catch (e) {
+        console.error("Erreur getAllPlaces:", e);
+        return []; // renvoyer un tableau vide en cas d'erreur
     }
 }
 
@@ -169,47 +170,90 @@ async function getCurrentUser() {
             method: 'GET',
             headers: getHeaders(true)
         });
+
+        if (response.status === 401) {
+            // Pas connecté → on renvoie null SANS erreur
+            return null;
+        }
+
         return await handleResponse(response);
+        
     } catch (error) {
         console.error('Erreur getCurrentUser:', error);
-        throw error;
+        return null; // ← On renvoie null même en cas d'erreur réseau
     }
 }
 
+
 // === UI Functions ===
+// Récupérer les reviews d'une place pour avoir la moyenne des notes
+async function getPlaceReviews(placeId) {
+    try {
+        const res = await fetch(`http://localhost:5000/api/v1/places/${placeId}/reviews`);
+        if (!res.ok) throw new Error('Impossible de récupérer les reviews');
+        const data = await res.json();
+        return data; // un tableau de reviews [{rating: X, comment: "..."}, ...]
+    } catch (error) {
+        console.error(`Erreur reviews place ${placeId}:`, error);
+        return []; // en cas d'erreur, retourner tableau vide
+    }
+}
+
+// Fonction pour générer les étoiles visuelles
+function getStars(rating) {
+    if (!rating) return 'No reviews yet';
+    const fullStars = Math.floor(rating);
+    const halfStar = rating - fullStars >= 0.5 ? '½' : '';
+    return '★'.repeat(fullStars) + halfStar;
+}
+
+
 
 // Afficher les places dans la page d'accueil
 async function displayPlaces() {
     const container = document.getElementById('places-list');
     if (!container) return;
-    
+
     container.innerHTML = '<p>Loading...</p>';
 
     try {
         const places = await getAllPlaces();
-        
+
         if (places.length === 0) {
             container.innerHTML = '<p>No places yet...</p>';
             return;
         }
-        
-        container.innerHTML = places.map(place => `
-            <div class="place-card" data-id="${place.id}">
-                <h3>${place.title}</h3>
-                <p>${place.description}</p>
-                <div class="place-info">
-                    <span class="price">${place.price}€ /nigth</span>
-                    <span class="rating">  -  ★ ${place.rating || 'No reviews yet'}</span>
+
+        container.innerHTML = ''; // vider le container avant d'ajouter les cartes
+
+        for (const place of places) {
+            // Récupérer les reviews pour cette place
+            const reviews = await getPlaceReviews(place.id);
+            const avgRating = reviews.length > 0
+                ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+                : null;
+
+            // Créer la carte HTML
+            const cardHTML = `
+                <div class="place-card" data-id="${place.id}">
+                    <h3>${place.title}</h3>
+                    <p>${place.description}</p>
+                    <div class="place-info">
+                        <span class="price">${place.price}€ / night</span>
+                        <span class="rating">${getStars(avgRating)} (${avgRating})</span>
+                    </div>
+                    <button onclick="viewPlaceDetails('${place.id}')">View details</button>
                 </div>
-                <button onclick="viewPlaceDetails('${place.id}')">View details</button>
-            </div>
-        `).join('');
-        
+            `;
+
+            container.insertAdjacentHTML('beforeend', cardHTML);
+        }
+
     } catch (error) {
         container.innerHTML = `
             <div class="error">
-                <p>❌ Erreur: ${error.message}</p>
-                <p>T'as encore oublié de run le back Arsi...</p>
+                <p>Erreur: ${error.message}</p>
+                <p>Assure-toi que le backend est lancé sur http://localhost:5000/api/v1</p>
             </div>
         `;
     }
