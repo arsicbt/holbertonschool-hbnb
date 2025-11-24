@@ -20,4 +20,3 @@ class Review(db.Model):
 
     # Relation vers User (pour le front)
     user = db.relationship("User", back_populates="reviews", lazy=True)
-

@@ -2,26 +2,35 @@
 
 {% block content %}
 <main>
-    <form id="review-form" method="post">
+    <div id="review-section">
         <h2>Add review</h2>
+        
+        <!-- Zone de message à ajouter ici -->
+        <div id="review-message" style="display: none;"></div>
+        
+        <form id="review-form" method="post">
+            <input type="hidden" id="place-id" value="{{ place_id }}">
 
-        <input type="hidden" id="place-id" value="{{ place_id }}">
+            <div>
+                <label for="comment">Your review:</label>
+                <textarea id="comment" name="comment" required></textarea>
+            </div>
 
-        <label for="comment">Your review:</label>
-        <textarea id="comment" name="comment" required></textarea>
+            <div>
+                <label for="rating">Rating:</label>
+                <select id="rating" name="rating" required>
+                    <option value="">-- Select a rating --</option>
+                    <option value="1">1 ★</option>
+                    <option value="2">2 ★★</option>
+                    <option value="3">3 ★★★</option>
+                    <option value="4">4 ★★★★</option>
+                    <option value="5">5 ★★★★★</option>
+                </select>
+            </div>
 
-        <label for="rating">Rating:</label>
-        <select id="rating" name="rating" required>
-            <option value="">-- Select a rating --</option>
-            <option value="1">1 ★</option>
-            <option value="2">2 ★★</option>
-            <option value="3">3 ★★★</option>
-            <option value="4">4 ★★★★</option>
-            <option value="5">5 ★★★★★</option>
-        </select>
-
-        <button type="submit">Send review</button>
-    </form>
+            <button type="submit">Send review</button>
+        </form>
+    </div>
 </main>
 
 <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>

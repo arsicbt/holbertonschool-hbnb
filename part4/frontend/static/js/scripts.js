@@ -134,6 +134,30 @@ async function getReviewsByPlace(placeId) {
     }
 }
 
+/* --- FONCTION POUR AFFICHER LES MESSAGES --- */
+function showReviewMessage(message, type = 'error') {
+    const messageDiv = document.getElementById('review-message');
+    
+    if (!messageDiv) {
+        console.error('Élément #review-message introuvable');
+        return;
+    }
+    
+    // Afficher le message
+    messageDiv.textContent = message;
+    messageDiv.className = type; // 'error', 'warning', ou 'success'
+    messageDiv.style.display = 'block';
+    
+    // Faire défiler jusqu'au message
+    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    // Masquer automatiquement après 5 secondes
+    setTimeout(() => {
+        messageDiv.style.display = 'none';
+    }, 5000);
+}
+
+/* --- CRÉER UNE REVIEW --- */
 async function createReview(placeId, rating, description) {
     try {
         const response = await fetch(`${API_URL}/reviews/`, {
@@ -146,9 +170,36 @@ async function createReview(placeId, rating, description) {
                 text: description 
             })
         });
-        return await handleResponse(response);
+
+        console.log('📥 Statut réponse:', response.status);
+
+        // Gérer le cas 409 - Review déjà existante
+        if (response.status === 409) {
+            showReviewMessage(
+                'You have already reviewed this place. You can only leave one review per location.',
+                'warning'
+            );
+            return null;
+        }
+
+        // Gérer les autres erreurs
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            showReviewMessage(
+                `Error: ${errorData.message || 'Unable to submit review'}`,
+                'error'
+            );
+            throw new Error(errorData.message || 'Request failed');
+        }
+
+        // Succès
+        showReviewMessage('Thank you! Your review has been successfully published.', 'success');
+        
+        return await response.json();
+
     } catch (error) {
-        console.error('Erreur createReview:', error);
+        console.error('💥 Erreur createReview:', error);
+        showReviewMessage(`An error occurred: ${error.message}`, 'error');
         throw error;
     }
 }
@@ -319,7 +370,7 @@ async function loadAndDisplayPlaces() {
     } catch (error) {
         container.innerHTML = `
             <div class="error">
-                <p>❌ Error: ${error.message}</p>
+                <p>Error: ${error.message}</p>
             </div>
         `;
     }
@@ -517,7 +568,6 @@ function setupReviewForm() {
         
         try {
             await createReview(placeId, rating, comment);
-            alert('Review add succesfully !');
             window.location.href = `/place?id=${placeId}`;
         } catch (error) {
             alert(`Erreur: ${error.message}`);
@@ -585,4 +635,5 @@ document.addEventListener('DOMContentLoaded', async () => {
             loginBtn.onclick = () => window.location.href = "/login";
         }
     });
+
 });
