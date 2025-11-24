@@ -81,6 +81,57 @@ async function getPlaceById(placeId) {
     }
 }
 
+/* --- AFFICHER LES MESSAGES DE LOGIN --- */
+function showLoginMessage(message, type = 'error') {
+    const messageDiv = document.getElementById('log-message');
+    
+    if (!messageDiv) {
+        console.error('Élément #log-message introuvable');
+        return;
+    }
+    
+    // Afficher le message
+    messageDiv.textContent = message;
+    messageDiv.className = type; // 'error', 'warning', ou 'success'
+    messageDiv.style.display = 'block';
+    
+    // Faire défiler jusqu'au message
+    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    // Masquer automatiquement après 5 secondes pour les erreurs
+    if (type === 'error' || type === 'warning') {
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+    }
+}
+
+/* --- FONCTION POUR AFFICHER LES MESSAGES DE LOGIN --- */
+function showLoginMessage(message, type = 'error') {
+    const messageDiv = document.getElementById('log-message');
+    
+    if (!messageDiv) {
+        console.error('Élément #log-message introuvable');
+        return;
+    }
+    
+    // Afficher le message
+    messageDiv.textContent = message;
+    messageDiv.className = type; // 'error', 'warning', ou 'success'
+    messageDiv.style.display = 'block';
+    
+    // Faire défiler jusqu'au message
+    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    // Masquer automatiquement après 5 secondes pour les erreurs
+    if (type === 'error' || type === 'warning') {
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+    }
+}
+
+/* --- FONCTION DE LOGIN CORRIGÉE --- */
 async function login(email, password) {
     try {
         const response = await fetch(`${API_URL}/auth/login`, {
@@ -91,24 +142,44 @@ async function login(email, password) {
             body: JSON.stringify({ email, password })
         });
 
+        console.log('📥 DEBUG : Login response status:', response.status);
+
+        // Gérer le cas 401 - Identifiants invalides
+        if (response.status === 401) {
+            showLoginMessage('Email or password invalid. Please try again.', 'error');
+            return null; // On s'arrête ici, pas de redirection
+        }
+
+        // Gérer les autres erreurs
         if (!response.ok) {
             const err = await response.json().catch(() => ({
                 error: `HTTP ${response.status}: ${response.statusText}`
             }));
-            throw new Error(err.error || 'Erreur inconnue');
+            showLoginMessage(`Error: ${err.error || 'Unknown error'}`, 'error');
+            return null; // On s'arrête ici aussi
         }
 
+        // Succès - UNIQUEMENT ICI on redirige
         const data = await response.json();
+        console.log('Login successful');
 
         if (data.access_token) {
-            document.cookie = `token=${data.access_token}; path=/`;
+            document.cookie = `token=${data.access_token}; path=/;`;
         }
 
-        window.location.href = '/index.html';
+        showLoginMessage('Login successful! Redirecting...', 'success');
+        
+        // Redirection uniquement en cas de succès
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1000);
+
+        return data;
 
     } catch (error) {
-        console.error('Login error:', error);
-        throw error;
+        console.error('💥 Login error:', error);
+        showLoginMessage('An error occurred. Please try again.', 'error');
+        return null; // Pas de redirection non plus
     }
 }
 
@@ -534,7 +605,6 @@ function setupLoginForm() {
         
         try {
             await login(email, password);
-            window.location.href = '/index';
         } catch (error) {
             if (errorDiv) {
                 errorDiv.textContent = error.message;
@@ -561,15 +631,16 @@ function setupReviewForm() {
         console.log('Comment/Description:', comment);
         console.log('PlaceId:', placeId);
 
+        const result = await createReview(placeId, rating, comment);
+
         if (!placeId) {
             alert('ID du logement manquant');
             return;
         }
         
-        try {
-            await createReview(placeId, rating, comment);
+        if (result) {
             window.location.href = `/place?id=${placeId}`;
-        } catch (error) {
+        } else {
             alert(`Erreur: ${error.message}`);
         }
     });

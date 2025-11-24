@@ -2,20 +2,27 @@
 
 {% block content %}
 <main>
-    <form id="login-form" method="post">
+    <div id="login-section">
         <h2>Login</h2>
+        
+        <!-- Zone de message à ajouter ici -->
+        <div id="log-message" style="display: none;"></div>
+        
+        <form id="login-form" method="post">
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
 
-        <label for="email">Email :</label>
-        <input type="email" id="email" name="email" required>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
 
-        <label for="password">Password :</label>
-        <input type="password" id="password" name="password" required>
-
-        <button type="submit">Login</button>
-    </form>
+            <button type="submit">Login</button>
+        </form>
+    </div>
 </main>
 
-
-{{ super() }}
 <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 {% endblock %}
