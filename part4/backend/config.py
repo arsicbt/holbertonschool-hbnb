@@ -13,7 +13,8 @@ class DevelopmentConfig(Config):
     # Configuration MySQL pour la base de données hbnb
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
-        'mysql+pymysql://root@localhost/hbnb'
+        #'mysql+pymysql://root@localhost/hbnb'
+        'sqlite:///instance/hbnb.db'
     )
 
 class ProductionConfig(Config):
