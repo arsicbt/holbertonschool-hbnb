@@ -71,13 +71,20 @@ I focused on creating a clean, user-friendly interface that is:
    git clone https://github.com/your-username/holbertonschool-hbnb.git
    cd holbertonschool-hbnb
    ```
-
-2. **Run the server**
+2. **Activate venv**
+   ```
+   source venv/bin/activate
+   ```
+3. **Iitialise DB**
+   ```
+   python3 backend/script.py
+   ```
+4. **Run the server**
     ```
     python3 backend/run.py
     ```
-   - Use my server:
-        Then visit http://localhost:5000
+5. Use the port 5000:
+   Then visit http://localhost:5000
 
 
 ## 🌟 Challenges I Overcame
